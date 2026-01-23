@@ -1,16 +1,22 @@
-# doll
+Birr Recognition
+A cross‑platform Flutter application for recognizing Ethiopian Birr currency notes using machine learning models.
+This project demonstrates mobile, desktop, and web support with a unified codebase.
 
-A new Flutter project.
+Features
+Currency Recognition: Detect and classify Ethiopian Birr notes using trained ML models.
 
-## Getting Started
+Cross‑Platform Support: Runs on Android, iOS, Web, Windows, macOS, and Linux.
 
-This project is a starting point for a Flutter application.
+Flutter Integration: Built with Flutter for fast UI development and responsive layouts.
 
-A few resources to get you started if this is your first Flutter project:
+Model Integration: Includes a dedicated model/ directory for ML assets.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Testing: Basic unit tests included in the test/ directory.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+🛠️ Tech Stack
+Language / Tool	Usage
+Flutter (Dart)	Core application framework
+Jupyter Notebook	Model training and experimentation
+C++ / CMake	Native bindings and performance optimization
+Swift	iOS platform integration
+C	Low‑level utilities
