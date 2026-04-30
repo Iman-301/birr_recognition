@@ -9,7 +9,6 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 class CurrencyRecognizer extends StatefulWidget {
   const CurrencyRecognizer({super.key});
@@ -22,7 +21,6 @@ class _CurrencyRecognizerState extends State<CurrencyRecognizer> {
   late Interpreter _interpreter;
   late List<String> _classes;
   late FlutterTts? _flutterTts;
-  final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isMaleVoice = true;
   bool eng = false;
   int _currentLanguage = 1;
@@ -42,43 +40,74 @@ class _CurrencyRecognizerState extends State<CurrencyRecognizer> {
   void dispose() {
     _flutterTts?.stop();
     _interpreter.close();
-    _audioPlayer.dispose();
     super.dispose();
   }
 
-  Future<void> _speak(String prediction) async {
-    String voiceType = _isMaleVoice ? "male" : "female";
-    String fileName = "$prediction$voiceType";
-    String filePath = "assets/voices/$fileName.mp3";
+  String _extractAmount(String label) {
+    final match = RegExp(r'\d+').firstMatch(label);
+    return match?.group(0) ?? "";
+  }
 
-    if (prediction == "-1") {
-      filePath = "assets/voices/again.mp3";
+  bool _isNoMoneyLabel(String label) {
+    final normalized = label.toLowerCase();
+    return normalized.contains("no money") ||
+        normalized.contains("unknown") ||
+        normalized.contains("background");
+  }
+
+  String _buildDisplayLabel(String classLabel) {
+    if (_isNoMoneyLabel(classLabel)) {
+      return "Background / Unknown";
     }
+
+    final amount = _extractAmount(classLabel);
+    if (amount.isNotEmpty) {
+      return "$amount Birr";
+    }
+    return "$classLabel Birr";
+  }
+
+  Future<void> _speakPrediction(String text, String language) async {
+    if (_flutterTts == null) return;
 
     try {
-      // Play audio from byte buffer
-      ByteData bytes = await rootBundle.load(filePath);
-      Uint8List soundBytes = bytes.buffer.asUint8List();
-
-      // Play audio from byte buffer
-      await _audioPlayer.play(BytesSource(soundBytes));
+      await _flutterTts!.stop();
+      await _flutterTts!.setLanguage(language);
+      await _flutterTts!.setPitch(_isMaleVoice ? 0.95 : 1.05);
+      await _flutterTts!.setSpeechRate(0.45);
+      await _flutterTts!.speak(text);
+      print("Speaking [$language]: $text");
     } catch (e) {
-      print("Error playing audio: $e");
+      print("Error speaking [$language]: $e");
     }
   }
 
-  void _toggleVoice() {
-    setState(() {
-      _isMaleVoice = !_isMaleVoice;
-    });
-  }
+  Future<void> _speakPredictionFromClassLabel(String classLabel) async {
+    if (_isNoMoneyLabel(classLabel)) {
+      if (eng) {
+        await _speakPrediction("No money note found.", "en-US");
+      } else {
+        await _speakPrediction("የገንዘብ ኖት አልተገኘም።", "am-ET");
+      }
+      return;
+    }
 
-  Future<void> _speakPrediction(String text) async {
-    if (_flutterTts == null) return;
-    await _flutterTts!.setLanguage("en-US");
-    await _flutterTts!.setPitch(1.0);
-    await _flutterTts!.speak(text);
-    print("Speaking: $text");
+    final amount = _extractAmount(classLabel);
+    if (eng) {
+      final spokenText =
+          amount.isNotEmpty ? "$amount birr" : "${classLabel.trim()} birr";
+      await _speakPrediction(spokenText, "en-US");
+    } else {
+      final amharicByAmount = <String, String>{
+        "5": "አምስት ብር",
+        "10": "አስር ብር",
+        "50": "ሃምሳ ብር",
+        "100": "መቶ ብር",
+        "200": "ሁለት መቶ ብር",
+      };
+      final spokenText = amharicByAmount[amount] ?? "ገንዘብ ተገኝቷል";
+      await _speakPrediction(spokenText, "am-ET");
+    }
   }
 
   Future<void> _loadModel() async {
@@ -163,35 +192,16 @@ class _CurrencyRecognizerState extends State<CurrencyRecognizer> {
       final predictions = outputBuffer[0];
       final predictedIndex = predictions
           .indexOf(predictions.reduce((double a, double b) => a > b ? a : b));
+      final classLabel = _classes.isNotEmpty
+          ? _classes[predictedIndex]
+          : "No Money Note Found";
 
       // Update the UI with the predicted class
       setState(() {
-        _predicted = _classes.isNotEmpty && predictedIndex != 10
-            ? "${_classes[predictedIndex]} Birr"
-            : "Background / Unknown";
+        _predicted = _buildDisplayLabel(classLabel);
       });
 
-      final num = [
-        "100",
-        "100",
-        "10",
-        "10",
-        "200",
-        "200",
-        "50",
-        "50",
-        "5",
-        "5",
-        "-1"
-      ];
-
-      if (eng == true) {
-        _speakPrediction(_predicted == "no money note found"
-            ? "no money note found"
-            : "$_predicted.");
-      } else {
-        _speak(num[predictedIndex]);
-      }
+      await _speakPredictionFromClassLabel(classLabel);
     } catch (e) {
       setState(() {
         _predicted = "Error during prediction: $e";
