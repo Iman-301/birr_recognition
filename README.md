@@ -20,11 +20,11 @@ Jupyter Notebook	Model training and experimentation
 C++ / CMake	Native bindings and performance optimization
 Swift	iOS platform integration
 C	Low‑level utilities
-<img width="1080" height="2408" alt="image" src="https://github.com/user-attachments/assets/5ee16fd8-59a7-4632-9c73-ef5e27d1b91f" />
-<img width="1080" height="2408" alt="image" src="https://github.com/user-attachments/assets/9ad9d341-3f6d-4e2f-b17d-1f8182d0f6b2" />
-<img width="1080" height="2408" alt="image" src="https://github.com/user-attachments/assets/c3aacdef-2dfa-4736-8dad-698e94ea2254" />
-<img width="1080" height="2408" alt="image" src="https://github.com/user-attachments/assets/ddfb869d-bedf-4f04-943d-28ca8ed81f39" />
-<img width="1080" height="2408" alt="image" src="https://github.com/user-attachments/assets/4012ab2f-8d71-4f04-b3a5-c66ae0611844" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/5ee16fd8-59a7-4632-9c73-ef5e27d1b91f" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/9ad9d341-3f6d-4e2f-b17d-1f8182d0f6b2" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/c3aacdef-2dfa-4736-8dad-698e94ea2254" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/ddfb869d-bedf-4f04-943d-28ca8ed81f39" />
+<img width="200" height="300" alt="image" src="https://github.com/user-attachments/assets/4012ab2f-8d71-4f04-b3a5-c66ae0611844" />
 
 
 
